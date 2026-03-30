@@ -3,24 +3,32 @@ workflows:
     name: Unity iOS Build
 
     environment:
+      unity: 2022.3.10f1
       xcode: latest
 
     scripts:
-
-      - name: Install Unity
+      - name: Activate Unity
         script: |
-          brew install --cask unity-hub
-          unityhub -- --headless install \
-          --version 2023.2.18f1 \
-          --module ios
+          echo "Unity starting..."
 
-      - name: Build iOS
+      - name: Build Unity project
         script: |
-          /Applications/Unity/Hub/Editor/2023.2.18f1/Unity.app/Contents/MacOS/Unity \
+          unity-editor \
           -batchmode \
           -quit \
           -projectPath . \
-          -executeMethod BuildScript.BuildIOS
+          -executeMethod BuildScript.BuildIOS \
+          -logFile -
+
+      - name: Build Xcode project
+        script: |
+          cd build/ios
+          xcodebuild \
+          -scheme Unity-iPhone \
+          -configuration Release \
+          -sdk iphoneos \
+          CODE_SIGNING_ALLOWED=NO \
+          build
 
     artifacts:
-      - build/ios/*.ipa
+      - build/ios/build/Release-iphoneos/*.app
