@@ -1,0 +1,38 @@
+workflows:
+  unity-ios-build:
+    name: Unity iOS Build
+    environment:
+      unity: 2023.2.18f1
+      xcode: latest
+
+    scripts:
+
+      - name: Build Unity project
+        script: |
+          unity-editor \
+          -batchmode \
+          -quit \
+          -projectPath . \
+          -buildTarget iOS \
+          -executeMethod BuildScript.BuildiOS
+
+      - name: Build Xcode project without signing
+        script: |
+          cd build/ios
+          xcodebuild \
+          -project Unity-iPhone.xcodeproj \
+          -scheme Unity-iPhone \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+
+      - name: Create IPA
+        script: |
+          mkdir Payload
+          cp -r build/ios/build/Release-iphoneos/*.app Payload/
+          zip -r gameAli.ipa Payload
+
+    artifacts:
+      - gameAli.ipa
