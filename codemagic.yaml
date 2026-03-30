@@ -1,34 +1,19 @@
 workflows:
-  unity-ios-build:
-    name: Unity iOS Build
-
+  ios-workflow:
+    name: Build iOS
     environment:
-      unity: 2022.3.10f1
+      unity: 2022.3.20f1
       xcode: latest
-
     scripts:
-      - name: Activate Unity
-        script: |
-          echo "Unity starting..."
-
       - name: Build Unity project
         script: |
-          unity-editor \
-          -batchmode \
-          -quit \
-          -projectPath . \
-          -executeMethod BuildScript.BuildIOS \
-          -logFile -
+          /Applications/Unity/Hub/Editor/2022.3.20f1/Unity.app/Contents/MacOS/Unity \
+            -batchmode -nographics -quit \
+            -projectPath $CM_PROJECT_DIR \
+            -executeMethod BuildScript.BuildIOS \
+            -logFile unity_build.log
 
       - name: Build Xcode project
         script: |
           cd build/ios
-          xcodebuild \
-          -scheme Unity-iPhone \
-          -configuration Release \
-          -sdk iphoneos \
-          CODE_SIGNING_ALLOWED=NO \
-          build
-
-    artifacts:
-      - build/ios/build/Release-iphoneos/*.app
+          xcodebuild -scheme Unity-iPhone -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO build
